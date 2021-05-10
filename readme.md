@@ -17,6 +17,7 @@ Notifies when vaccines are available in your district using apisetu public api
 #### Requirements:
 
 OS : Linux
+
 Dependecies : kdialog, python/python3
 
 #### Install dependencies:
