@@ -8,7 +8,7 @@ import requests
 
 # Read from config file
 conf = configparser.ConfigParser()
-conf.read("cowin.conf")
+conf.read("../cowin.conf")
 
 DISTRICT = int(conf["District"]["district_code"])
 AGE_LIMIT = int(conf["DEFAULT"]["age_limit"])
