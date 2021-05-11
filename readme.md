@@ -44,9 +44,11 @@ sh setup.sh
 ```
 
 
-#### Todo:
+#### Todo: [PR appreciated]
 
-- Hourly Cron job setup [PR appreciated]
+- Hourly Cron job setup
+- Windows support through Tkinter
+
 
 #### State/District codes:
 
