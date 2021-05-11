@@ -10,6 +10,9 @@ Notifies when vaccines are available in your district using apisetu public api
 - Age Limit
 - Number of days to search
 
+in the config file `cowin.conf`
+
+Valid options : age_limit, num_days, district_code
 
 ![kdialog](/src/img/kdialog.png)
 

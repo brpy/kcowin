@@ -1,3 +1,4 @@
+import configparser
 import datetime
 import json
 import os
@@ -5,14 +6,13 @@ from datetime import date
 
 import requests
 
-# Check codes folder for your district code.
-DISTRICT = 543
+# Read from config file
+conf = configparser.ConfigParser()
+conf.read("cowin.conf")
 
-# 18 or 45
-AGE_LIMIT = 45
-
-# No. of days to search from Today. (>1)
-NUM_DAYS = 14
+DISTRICT = int(conf["District"]["district_code"])
+AGE_LIMIT = int(conf["DEFAULT"]["age_limit"])
+NUM_DAYS = int(conf["DEFAULT"]["num_days"])
 
 HEADER = {
     "accept": "application/json",
