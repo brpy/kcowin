@@ -4,7 +4,8 @@ import json
 import os
 from datetime import date
 
-import requests
+import asyncio
+import aiohttp
 
 # Read from config file
 conf = configparser.ConfigParser()
@@ -14,7 +15,7 @@ DISTRICT = int(conf["District"]["district_code"])
 AGE_LIMIT = int(conf["DEFAULT"]["age_limit"])
 NUM_DAYS = int(conf["DEFAULT"]["num_days"])
 
-HEADER = {
+HEADERS = {
     "accept": "application/json",
     "Accept-Language": "hi_IN",
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36 Edg/90.0.818.56",
@@ -29,11 +30,16 @@ def get_url(date, district=DISTRICT):
     formatted_date = date.strftime("%d-%m-%YYYY")
     return f"https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByDistrict?district_id={district}&date={formatted_date}"
 
+url_list = [get_url(date) for date in consecutive_days]
 
-def get_response(url):
-    response = requests.get(url, headers=HEADER)
-    return response
+async def fetch(session, url):
+    async with session.get(url, headers=HEADERS) as response:
+        return await response.json()
 
+async def fetch_all(urls, loop):
+    async with aiohttp.ClientSession(loop=loop) as session:
+        results = await asyncio.gather(*[fetch(session, url) for url in urls], return_exceptions=True)
+        return results
 
 def notify(text=""):
     text = f"Vaccines Available!  [Age: {AGE_LIMIT}+]\n{text}"
@@ -46,15 +52,18 @@ def notify(text=""):
 
 
 if __name__ == "__main__":
-    urls = map(get_url, consecutive_days)
-    responses = (get_response(url) for url in urls)
+    loop = asyncio.get_event_loop()
+    urls = url_list
+    responses = loop.run_until_complete(fetch_all(urls, loop))
 
     text = []
-    for r in responses:
-        centers = json.loads(r.content)["sessions"]
 
-        # if request is succesful and centers is non empty
-        if r.status_code == 200 and centers:
+    for r in responses:
+
+        centers = r["sessions"]
+
+        # if centers is non empty
+        if centers:
 
             for center in centers:
                 if center["min_age_limit"] <= AGE_LIMIT:
